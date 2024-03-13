@@ -76,7 +76,7 @@ function install_requirements {
 }
 
 function help {
-  echo "Usage: source ./setup.sh {install|clean|fclean|install-requirements}"
+  echo "Usage: source ./setup.sh {install|clean|fclean|install-requirements|pip-install <package>}"
   echo "Warning: This script works only with source command"
   echo
   echo "Commands:"
@@ -84,15 +84,17 @@ function help {
   echo "  \`clean\`: Deactivate venv-tpv"
   echo "  \`fclean\`: Deactivate venv-tpv and delete venv-tpv"
   echo "  \`install-requirements\`: Install requirements"
+  echo "  \`pip-install <package>\`: Install a package and update requirements.txt"
 }
 
 for arg in "$@"; do
-  shift
   if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
     help
     return 0
   fi
 done
+
+echo "Warning: This script works only with source command"
 
 case $1 in
     "install")
@@ -117,6 +119,15 @@ case $1 in
 
       "install-requirements")
         install_requirements
+        ;;
+
+      "pip-install")
+      if [ -n "$2" ]; then
+        pip install "$2"
+        pip freeze > requirements.txt
+      else
+        echo "Usage: source ./setup.sh pip-install <package>"
+      fi
         ;;
 
       *)
