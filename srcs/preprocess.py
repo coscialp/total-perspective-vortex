@@ -26,10 +26,7 @@ def preprocess() -> io.Raw:
     )
 
     raw: io.Raw = io.concatenate_raws(
-        [
-            io.read_raw_edf(f, preload=True, verbose=VerboseType.ERROR.value)
-            for f in data_paths
-        ],
+        [io.read_raw_edf(f, preload=True, verbose=VerboseType.ERROR.value) for f in data_paths],
         verbose=VerboseType.ERROR.value,
     )
     eegbci.standardize(raw)
