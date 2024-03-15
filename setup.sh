@@ -52,6 +52,7 @@ function setup_pyenv {
 }
 
 function clean {
+  deactivate
   if _check-pyenv-version-name; then
     echo "Deactivating venv-tpv-3.8"
     pyenv deactivate
