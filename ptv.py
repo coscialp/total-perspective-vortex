@@ -9,8 +9,9 @@ Example:
     $ python ptv.py predict
 """
 
-import click
 import logging
+
+import click
 
 CONTEXT_SETTINGS = {
     "help_option_names": ["-h", "--help"],
