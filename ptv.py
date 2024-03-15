@@ -9,8 +9,6 @@ Example:
     $ python ptv.py predict
 """
 
-import logging
-
 import click
 
 CONTEXT_SETTINGS = {
