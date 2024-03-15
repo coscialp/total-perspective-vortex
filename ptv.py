@@ -10,15 +10,16 @@ Example:
 """
 
 import click
+import logging
 
 CONTEXT_SETTINGS = {
     "help_option_names": ["-h", "--help"],
 }
 
-
 @click.group(context_settings=CONTEXT_SETTINGS)
 def cli():
     """Command line interface for the project."""
+
 
 @cli.command()
 def preprocess():
