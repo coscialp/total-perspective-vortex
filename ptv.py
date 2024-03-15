@@ -19,7 +19,6 @@ CONTEXT_SETTINGS = {
 @click.group(context_settings=CONTEXT_SETTINGS)
 def cli():
     """Command line interface for the project."""
-
 @cli.command()
 def preprocess():
     """Preprocess the data."""
