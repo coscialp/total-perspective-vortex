@@ -2,11 +2,16 @@
 
 function _check-pyenv-version-name {
     version_name="$(pyenv version-name)"
-    if [ "$version_name" = "venv-tpv" ]; then
+    if [ "$version_name" = "venv-tpv-3.8" ]; then
       return 0
     else
       return 1
     fi
+}
+
+function setup_venv {
+  python3 -m venv venv
+  source venv/bin/activate
 }
 
 function setup_pyenv {
@@ -21,53 +26,53 @@ function setup_pyenv {
         eval "$(pyenv init -)"
     fi
 
-    if pyenv install --list | grep -Fq " 3.11.8"; then
-        echo "Python 3.11.8 is already installed"
+    if pyenv install --list | grep -Fq " 3.8.10"; then
+        echo "Python 3.8.10 is already installed"
     else
-        echo "Python 3.11.8 is not installed"
-        echo "Installing Python 3.11.8"
-        pyenv install 3.11.8
+        echo "Python 3.8.10 is not installed"
+        echo "Installing Python 3.8.10"
+        pyenv install 3.8.10
     fi
 
-    if pyenv virtualenvs | grep -Fq "3.11.8/envs/venv-tpv"; then
-        echo "Python 3.11.8 venv-tpv is already installed"
+    if pyenv virtualenvs | grep -Fq "3.8.10/envs/venv-tpv-3.8"; then
+        echo "Python 3.8.10 venv-tpv-3.8 is already installed"
     else
-        echo "Python 3.11.8 venv-tpv is not installed"
-        echo "Installing Python 3.11.8 venv-tpv"
-        pyenv virtualenv 3.11.8 venv-tpv
+        echo "Python 3.8.10 venv-tpv-3.8 is not installed"
+        echo "Installing Python 3.8.10 venv-tpv-3.8"
+        pyenv virtualenv 3.8.10 venv-tpv-3.8
     fi
 
     if _check-pyenv-version-name; then
-        echo "venv-tpv is already activated"
+        echo "venv-tpv-3.8 is already activated"
     else
-        echo "venv-tpv is not activated"
-        echo "Activating venv-tpv"
-        pyenv activate venv-tpv
+        echo "venv-tpv-3.8 is not activated"
+        echo "Activating venv-tpv-3.8"
+        pyenv activate venv-tpv-3.8
     fi
 }
 
 function clean {
   if _check-pyenv-version-name; then
-    echo "Deactivating venv-tpv"
+    echo "Deactivating venv-tpv-3.8"
     pyenv deactivate
   else
-    echo "venv-tpv is not activated"
+    echo "venv-tpv-3.8 is not activated"
   fi
 }
 
 function fclean {
     clean
-    if pyenv virtualenvs | grep -Fq "3.11.8/envs/venv-tpv"; then
-        echo "Deleting Python 3.11.8 venv-tpv"
-        pyenv virtualenv-delete -f 3.11.8/envs/venv-tpv
+    if pyenv virtualenvs | grep -Fq "3.8.10/envs/venv-tpv-3.8"; then
+        echo "Deleting Python 3.8.10 venv-tpv-3.8"
+        pyenv virtualenv-delete -f 3.8.10/envs/venv-tpv-3.8
     else
-        echo "Python 3.11.8 venv-tpv is not installed"
+        echo "Python 3.8.10 venv-tpv-3.8 is not installed"
     fi
 }
 
 function install_requirements {
   version_name="$(pyenv version-name)"
-  if [ -f "requirements.txt" ] && [ "$version_name" = "venv-tpv" ]; then
+  if [ -f "requirements.txt" ] && [ "$version_name" = "venv-tpv-3.8" ]; then
     echo "Installing requirements"
     pip install -r requirements.txt
   else
@@ -80,9 +85,9 @@ function help {
   echo "Warning: This script works only with source command"
   echo
   echo "Commands:"
-  echo "  \`install\`: Install pyenv, Python 3.11.8, venv-tpv and requirements"
-  echo "  \`clean\`: Deactivate venv-tpv"
-  echo "  \`fclean\`: Deactivate venv-tpv and delete venv-tpv"
+  echo "  \`install\`: Install pyenv, Python 3.8.10, venv-tpv-3.8 and requirements"
+  echo "  \`clean\`: Deactivate venv-tpv-3.8"
+  echo "  \`fclean\`: Deactivate venv-tpv-3.8 and delete venv-tpv-3.8"
   echo "  \`install-requirements\`: Install requirements"
   echo "  \`pip-install <package>\`: Install a package and update requirements.txt"
 }
@@ -99,7 +104,8 @@ echo "Warning: This script works only with source command"
 case $1 in
     "install")
         clean
-        setup_pyenv
+        setup_venv
+#        setup_pyenv
         install_requirements
         ;;
 

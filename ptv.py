@@ -11,6 +11,8 @@ Example:
 
 import click
 
+from srcs.preprocess import preprocess as run_preprocess
+
 CONTEXT_SETTINGS = {
     "help_option_names": ["-h", "--help"],
 }
@@ -24,6 +26,7 @@ def cli():
 @cli.command()
 def preprocess():
     """Preprocess the data."""
+    run_preprocess()
 
 
 @cli.command()
