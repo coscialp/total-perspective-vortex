@@ -9,31 +9,31 @@ Usage:
     $ python preprocess.py
 """
 
-from mne import io  # type: ignore
-from mne.datasets import eegbci  # type: ignore
+from typing import List
 
-from srcs.utils import VerboseType
+from matplotlib import pyplot as plt
+from mne.io import Raw
+
+from srcs.enums import TaskEnum
+from srcs.load_dataset import load_dataset
 
 
-def preprocess() -> io.Raw:
+def preprocess(subject: int = 1, task: List[int] = TaskEnum.Task1):
     """Preprocess the data."""
-    data_paths = eegbci.load_data(
-        subject=1,
-        runs=[3, 7, 11],
-        path="./mne_data",
-        update_path=True,
-        verbose=VerboseType.ERROR.value,
-    )
+    print("Preprocessing the data.")
+    raw: Raw = load_dataset(subject, task)
+    raw.plot(scalings="auto")
+    raw.compute_psd(n_jobs=-1).plot()
+    raw.compute_psd(n_jobs=-1).plot(average=True, picks="eeg", exclude="bads")
+    plt.show()
 
-    raw: io.Raw = io.concatenate_raws(
-        [io.read_raw_edf(f, preload=True, verbose=VerboseType.ERROR.value) for f in data_paths],
-        verbose=VerboseType.ERROR.value,
-    )
-    eegbci.standardize(raw)
+    raw.filter(8, 32, picks="eeg")
 
-    raw.filter(7, 30, fir_design="firwin", verbose=VerboseType.ERROR.value)
-    print(raw.describe())
-    return raw
+    raw.plot(scalings="auto")
+    raw.compute_psd(n_jobs=-1).plot()
+    raw.compute_psd(n_jobs=-1).plot(average=True, picks="eeg", exclude="bads")
+
+    plt.show()
 
 
 if __name__ == "__main__":
