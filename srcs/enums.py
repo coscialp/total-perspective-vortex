@@ -43,6 +43,8 @@ class TaskEnum(Enum):
     Task2 = [4, 8, 12]
     Task3 = [5, 9, 13]
     Task4 = [6, 10, 14]
+    Task5 = [3, 7, 11, 4, 8, 12]
+    Task6 = [5, 9, 13, 6, 10, 14]
 
     @staticmethod
     def range():
@@ -69,6 +71,19 @@ class TaskEnum(Enum):
             return TaskEnum.all()[index - 1]
         except IndexError:
             raise ValidationError("task", str(range(len(TaskEnum.all()))), f"{index}")
+
+    @staticmethod
+    def index(task: List[int]) -> int:
+        """
+        Get the task index
+
+        Args:
+            task (List[int]): Task values
+
+        Returns:
+            int: Task index
+        """
+        return TaskEnum.all().index(task) + 1
 
     @staticmethod
     def all():

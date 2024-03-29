@@ -50,16 +50,122 @@ def preprocess(subject: int, task: int):
 
 
 @cli.command()
-def train():
+@click.option(
+    "-a",
+    "--all-subjects",
+    is_flag=True,
+    help="Compute all subjects for all tasks.",
+)
+@click.option(
+    "-s",
+    "--subject",
+    type=click.IntRange(1, 110),
+    help="Subject number.",
+)
+@click.option(
+    "-t",
+    "--task",
+    type=click.IntRange(TASK_RANGE[0], TASK_RANGE[1]),
+    help="Task number.",
+)
+def train(all_subjects: bool, subject: int, task: int):
     """Train the model."""
-    run_train()
+    if not all_subjects:
+        subject = (
+            subject
+            if subject
+            else click.prompt("Enter a subject number (1<=subject<=110)", type=int)
+        )
+        task = (
+            task
+            if task
+            else click.prompt(
+                f"Enter a task number ({TASK_RANGE[0]}<=task<={TASK_RANGE[1]})",
+                type=int,
+            )
+        )
+        run_train(subject, TaskEnum.get(task))
+    else:
+        for s in range(1, 110 + 1):
+            for t in range(TASK_RANGE[0], TASK_RANGE[1] + 1):
+                print(f"Training model for subject {s} on task {t}.")
+                run_train(s, TaskEnum.get(t))
 
 
 @cli.command()
-def predict():
+@click.option(
+    "-a",
+    "--all-subjects",
+    is_flag=True,
+    help="Compute all subjects for all tasks.",
+)
+@click.option(
+    "-s",
+    "--subject",
+    type=click.IntRange(1, 110),
+    help="Subject number.",
+)
+@click.option(
+    "-t",
+    "--task",
+    type=click.IntRange(TASK_RANGE[0], TASK_RANGE[1]),
+    help="Task number.",
+)
+def predict(all_subjects: bool, subject: int, task: int):
     """Predict the target variable."""
-    run_predict()
+    if not all_subjects:
+        subject = (
+            subject
+            if subject
+            else click.prompt("Enter a subject number (1<=subject<=110)", type=int)
+        )
+        task = (
+            task
+            if task
+            else click.prompt(
+                f"Enter a task number ({TASK_RANGE[0]}<=task<={TASK_RANGE[1]})",
+                type=int,
+            )
+        )
+        run_predict(subject, TaskEnum.get(task))
+    else:
+        for s in range(1, 110 + 1):
+            for t in range(TASK_RANGE[0], TASK_RANGE[1] + 1):
+                try:
+                    run_predict(s, TaskEnum.get(t))
+                except AssertionError:
+                    print(f"Model not trained for subject {s} on task {t}.")
+
+
+@cli.command()
+def accuracy():
+    """Get the accuracy of the model."""
+    accuracies = []
+    for s in range(1, 110 + 1):
+        for t in range(TASK_RANGE[0], TASK_RANGE[1] + 1):
+            try:
+                acc = run_predict(s, TaskEnum.get(t), verbose=False)
+                accuracies.append((s, t, acc))
+                print(f"experiment {t} subject %03d accuracy = {acc:.2f}" % s)
+            except AssertionError:
+                continue
+
+    print("")
+
+    print("Mean accuracy of the six different experiments for all 110 subjects:")
+    for t in range(TASK_RANGE[0], TASK_RANGE[1] + 1):
+        acc = [acc for s, task, acc in accuracies if task == t]
+        if not acc:
+            continue
+        print(f"experiment {t}: {sum(acc) / len(acc):.2f}")
+
+    print(
+        f"\nMean accuracy of {TASK_RANGE[1]} experiments: {sum(acc for s, task, acc in accuracies) / len(accuracies):.2f}"
+    )
 
 
 if __name__ == "__main__":
-    cli()
+    try:
+        cli()
+    except Exception as e:
+        print(f"Error: {e}")
