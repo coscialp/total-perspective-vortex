@@ -62,7 +62,3 @@ def predict(subject: int, tasks: List[int], verbose: bool = True):
         print(f"Accuracy: {accuracy:.3f}")
 
     return accuracy
-
-
-if __name__ == "__main__":
-    predict()
