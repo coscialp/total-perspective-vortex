@@ -14,12 +14,14 @@ import pickle
 from typing import List
 
 import joblib
-from mne.decoding import CSP
+
+# from mne.decoding import CSP
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score, KFold
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
+from srcs.csp import CommonSpacialPattern
 from srcs.enums import TaskEnum
 from srcs.load_dataset import load_split_dataset
 
@@ -52,7 +54,9 @@ def train(subject: int, tasks: List[int]):
     X_train, X_test, y_train, y_test = load_split_dataset(subject, tasks)
 
     # Create pipeline
-    pipeline = make_pipeline(CSP(), StandardScaler(), LogisticRegression())
+    pipeline = make_pipeline(
+        CommonSpacialPattern(), StandardScaler(), LogisticRegression()
+    )
     score = cross_val_score(pipeline, X_train, y_train, cv=KFold(n_splits=10))
 
     print(f"Cross validation score: {score.mean():.2f}")
