@@ -49,10 +49,24 @@ def preprocess(subject: int, task: int):
     run_preprocess(subject, TaskEnum.get(task))
 
 
+def check_options(**kwargs):
+    if kwargs["all_subjects_and_tasks"] and (
+        kwargs["subject"] is not None or kwargs["task"] is not None
+    ):
+        raise click.UsageError(
+            "Cannot use --all-subjects-and-tasks with --subject or --task."
+        )
+    if kwargs["all_tasks"] and kwargs["task"] is not None:
+        raise click.UsageError("Cannot use --all-tasks with --task.")
+
+    if kwargs["all_subjects_and_tasks"] and kwargs["all_tasks"]:
+        raise click.UsageError("Cannot use --all-subjects-and-tasks with --all-tasks.")
+
+
 @cli.command()
 @click.option(
     "-a",
-    "--all-subjects",
+    "--all-subjects-and-tasks",
     is_flag=True,
     help="Compute all subjects for all tasks.",
 )
@@ -68,23 +82,45 @@ def preprocess(subject: int, task: int):
     type=click.IntRange(TASK_RANGE[0], TASK_RANGE[1]),
     help="Task number.",
 )
-def train(all_subjects: bool, subject: int, task: int):
+@click.option(
+    "-at",
+    "--all-tasks",
+    is_flag=True,
+    help="Compute all tasks for a subject.",
+)
+def train(
+    all_subjects_and_tasks: bool,
+    subject: int,
+    task: int,
+    all_tasks: bool,
+):
     """Train the model."""
-    if not all_subjects:
+    check_options(
+        all_subjects_and_tasks=all_subjects_and_tasks,
+        subject=subject,
+        task=task,
+        all_tasks=all_tasks,
+    )
+    if not all_subjects_and_tasks:
         subject = (
             subject
             if subject
             else click.prompt("Enter a subject number (1<=subject<=110)", type=int)
         )
-        task = (
-            task
-            if task
-            else click.prompt(
-                f"Enter a task number ({TASK_RANGE[0]}<=task<={TASK_RANGE[1]})",
-                type=int,
+        if not all_tasks:
+            task = (
+                task
+                if task
+                else click.prompt(
+                    f"Enter a task number ({TASK_RANGE[0]}<=task<={TASK_RANGE[1]})",
+                    type=int,
+                )
             )
-        )
-        run_train(subject, TaskEnum.get(task))
+            run_train(subject, TaskEnum.get(task))
+        else:
+            for t in range(TASK_RANGE[0], TASK_RANGE[1] + 1):
+                print(f"Training model for subject {subject} on task {t}.")
+                run_train(subject, TaskEnum.get(t))
     else:
         for s in range(1, 110 + 1):
             for t in range(TASK_RANGE[0], TASK_RANGE[1] + 1):
